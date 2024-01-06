@@ -1,43 +1,57 @@
 <script setup>
 import { ref } from 'vue';
-import axios from 'axios';
 
-const info = ref('Nothing here yet!');
+const info = ref(null);
 const fileInput = ref(null);
+let uploaded = ref(false);
 
-async function submitFile() {
-    let formData = new FormData();
-    formData.append('file', this.fileInput);
-    console.log(this.file);
+const submitFile = async () => {
+    const formData = new FormData();
+    formData.append('file_upload', fileInput.value);
 
-    await axios.post('http://127.0.0.1:8000/lang', formData,
-        {
-            headers: {
-                'Content-Type': 'multipart/form-data'
-            }
-        }).then((response) => {
-            console.log('SUCCESS!!');
-            info.value = response.data;
-            console.log(info.value);
-        }).catch(function () {
-            console.log('FAILURE!!');
-        });
+    const endpoint = 'http://127.0.0.1:8000/lang';
+
+    try {
+        const response = await fetch(endpoint, { method: 'POST', body: formData })
+            .then((result) => result.json())
+            .then((data) => {
+                console.log('SUCCESS!!');
+                console.log(data);
+                info.value = data.lang;
+                console.log(info.value);
+                uploaded.value = true;
+            })
+            .catch((result) => {
+                console.log('FAILURE!!');
+                console.log(result);
+            })
+    } catch (e) {
+        console.log(e);
+    }
 
 }
 
-function handleFileChange() {
-    fileInput = fileInput.value.files[0];
+const handleFileChange = (event) => {
+    fileInput.value = event.target.files[0];
 }
 </script>
 
 <template>
     <div>
-        <h1>File Upload</h1>
+        <h1>Language Finder</h1>
         <form>
-            <div style={{ margin-bottom: 20 }}>
-                <input type="file">
+            <div class="upl_btn">
+                <input type="file" id="fileInput" ref="fileInput" @change="handleFileChange($event)">
             </div>
-            <button type="submit">Upload</button>
+            <button type="submit" @click.prevent="submitFile">Upload</button>
         </form>
+        <p v-if="uploaded">The file is most likely written in {{ info }}</p>
+        <p v-else> </p>
     </div>
 </template>
+
+<style>
+.upl_btn {
+    margin-bottom: 20px;
+}
+</style>
