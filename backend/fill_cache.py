@@ -1,9 +1,10 @@
 import os
 from consts import MAX_CONTEXT_SIZE
+from add_or_update_cache import *
 
 if __name__ == '__main__':
     os.system('mkdir cache')
-    for i in range(MAX_CONTEXT_SIZE):
-        os.system(f'mkdir -p cache/k{i+1}')
+    #for i in range(MAX_CONTEXT_SIZE):
+    os.system(f'mkdir -p cache/k{MAX_CONTEXT_SIZE}')
     for path in os.listdir('./langs/'):
-        os.system(f'python3 add_new_lang_to_cache.py -f {path}')
+        add_or_update_cache(path)

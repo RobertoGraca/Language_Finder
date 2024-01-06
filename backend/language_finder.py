@@ -1,8 +1,6 @@
 from math import log2
-import sys
-import argparse
 import os
-from consts import SMOOTHING_PARAMETER
+from consts import *
 from fcm import FCM
 
 
@@ -35,25 +33,12 @@ def get_estimated_bits(path, target, k):
     return estimated_bits / symbol_count
 
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(
-        description='Find language of target file')
-    parser.add_argument('-t', '--target', required=True, type=str)
-    parser.add_argument('-s', '--size', required=True, type=int)
-    args = parser.parse_args(sys.argv[1::])
-
-    k = args.size
-    target = args.target
-
+def get_language(target):
     score = {}
-    for path in os.listdir(f'cache/k{k}/'):
+    for path in os.listdir(f'cache/k{MAX_CONTEXT_SIZE}/'):
         if path not in score:
+            # print(f'Comparing {target} with {path}')
             score[path] = get_estimated_bits(
-                f'cache/k{k}/{path}', target, k)
-            print(
-                f'{os.path.splitext(path)[0]} -> {round(score[path], 3)} bits')
+                f'cache/k{MAX_CONTEXT_SIZE}/{path}', target, MAX_CONTEXT_SIZE)
 
-    if len(target.split('/')) > 1:
-        target = target.split('/')[-1]
-    print(
-        f'The text {target} is most likely written in {os.path.splitext(min(score, key=score.get))[0]}')
+    return os.path.splitext(min(score, key=score.get))[0]
